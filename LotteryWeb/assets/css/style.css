@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eee;
+}
+
+.z-index9999 {
+    z-index: 9999;
+}
+
+.main-color {
+    background-color: #03A9F4;
+}
+
+.menu-color{
+    background-color: #0277BD;
+}
+
+#layout-menu {
+    height: auto;
+    position: fixed;
+    top: 55px;
+    box-shadow: 0 2px 5px 0 rgb(0 0 0 / 26%);
+}
+
+#layout-menu .nav-tabs {
+    border-bottom: none;
+}
+
+#layout-menu .nav-tabs .nav-link {
+    color: white !important;
+    font-size: 17px !important;
+    font-weight: bold !important;
+    border: none !important;
+}
+
+#layout-menu .nav-tabs .nav-link:hover {
+    background-color: #e8e8e8;
+    color: black !important;
+}
+
+.list-item li {
+  display: inline-block;
+  font-size: 20px;
+  padding: 10px;
+}
+
+.card-header-custom {
+    font-size: 20px; 
+    color: white;
+}
