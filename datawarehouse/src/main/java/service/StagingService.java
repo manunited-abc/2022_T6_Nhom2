@@ -18,73 +18,52 @@ public class StagingService {
 
 	public StagingService(ConnectDatabase connectDatabase) {
 		this.connectDatabase = connectDatabase;
-		//config  = connectDatabase.getConfig("{call getConfig}");
+		// config = connectDatabase.getConfig("{call getConfig}");
 		log = connectDatabase.getLog("{call get_filelog}");
-	
+
 	}
 
 	public void process() {
 		Connection connection = null;
 		if (log != null) {
-			if (log.getStatus().equals("ER")) {
-				try {
-					connection = connectDatabase.getConnection();
-					CallableStatement cs = null;
-					connection.setAutoCommit(false);
-					// load file to staging				
-					String loadData = "LOAD DATA INFILE '" +log.getPathFile()+"' \r\n"
-							+ "INTO TABLE staging_temp\r\n"
-							+ "FIELDS TERMINATED BY ',' \r\n"
-							+ "ENCLOSED BY '\"'\r\n"
-							+ "LINES TERMINATED BY '\\r\\n'\r\n"
-							+ "IGNORE 1 ROWS\r\n"
-							+ "(province,issue_date,prize0,prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8)\r\n"
-							;
-					//System.out.println(loadData);
-					cs = connection.prepareCall(loadData);
-					cs.execute();
-					
-					// update status file_log
-					String sqlUpdate = "update file_log set status = 'TR' where id = " + log.getId();
-					cs = connection.prepareCall(sqlUpdate);
-					cs.execute();
+			try {
+				connection = connectDatabase.getConnection();
+				CallableStatement cs = null;
+				connection.setAutoCommit(false);
+				// load file to staging
+				String loadData = "LOAD DATA INFILE '" + log.getPathFile() + "' \r\n" + "INTO TABLE staging\r\n"
+						+ "FIELDS TERMINATED BY ',' \r\n" + "ENCLOSED BY '\"'\r\n" + "LINES TERMINATED BY '\\r\\n'\r\n"
+						+ "IGNORE 1 ROWS\r\n"
+						+ "(province,issue_date,prize0,prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8)\r\n";
+
+				cs = connection.prepareCall(loadData);
+				cs.execute();
+
+				cs = connection.prepareCall("{calll update_filelog(?,?)}");
+				cs.setString(1, "TR");
+				cs.setInt(2, log.getId());
+				cs.execute();
+
+				cs = connection.prepareCall("{call tranform_staging}");
 				
-					
-					// map issue_date to date_dim
-					String sqlUpdate1 = "update staging join date_dim on staging.issue_date=date_dim.full_date\r\n"
-							+ "set staging.date_sk = date_dim.date_sk;";
-					cs = connection.prepareCall(sqlUpdate1);
-					cs.execute();
-					
-//					 
-					String sqlUpdate3 = "update staging join province on staging_temp.province=province.name_provinces\r\n"
-							+ "set staging_temp.nkey = province.code_region;";
-					cs = connection.prepareCall(sqlUpdate3);
-					cs.execute();
-					
+				cs.execute();
 
-					cs.execute();
-					
-					connection.commit();
+				connection.commit();
 
-					cs.close();
-					connection.close();
-					System.out.println("Success");
-				} catch (SQLException e) {
-					e.printStackTrace();					
-					WriteFile.writeError(e);
-					try {
-						if (connection != null)
-							connection.rollback();
-					} catch (SQLException se2) {
-						se2.printStackTrace();
-					}
+				cs.close();
+				connection.close();
+				System.out.println("Success");
+			} catch (SQLException e) {
+				e.printStackTrace();
+				WriteFile.writeError(e);
+				try {
+					if (connection != null)
+						connection.rollback();
+				} catch (SQLException se2) {
+					se2.printStackTrace();
 				}
-
 			}
 		}
 	}
-
-
 
 }

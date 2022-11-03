@@ -18,19 +18,9 @@ public class DatawarehouseService {
 			connection = connectDatabase.getConnection();
 			CallableStatement cs = null;
 			connection.setAutoCommit(false);
-			String sql1 = "insert into temp select nkey from staging\r\n"
-					+ "where nkey not in (select nkey from staging \r\n"
-					+ "where nkey in (select nkey from lottery_fact ) and staging.date_sk  in (select date_sk from lottery_fact)) ;";
-			cs = connection.prepareCall(sql1);
+			cs = connection.prepareCall("{call update_expired_date_lottery_fact}");
 			cs.execute();
-			String sql2 = "update lottery_fact set expired_date = CURDATE() where nkey in (select nkey from temp);";
-			cs = connection.prepareCall(sql2);
-			cs.execute();
-			String sql3 = "insert into lottery_fact(nkey,prize0, prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8,date_sk,id_province,expired_date) \r\n"
-					+ "select nkey,prize0, prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8,date_sk,id_province,expired_date from staging\r\n"
-					+ "where nkey not in (select nkey from staging \r\n"
-					+ "where staging.nkey in (select nkey from lottery_fact ) and staging.date_sk  in (select date_sk from lottery_fact)) ;";
-			cs = connection.prepareCall(sql3);
+			cs = connection.prepareCall("{call insert_staging_to_lottery_fact}");
 			cs.execute();
 			connection.commit();
 			cs.close();

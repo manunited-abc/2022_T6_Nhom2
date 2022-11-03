@@ -18,14 +18,11 @@ public class DeleteStagingService {
 			connection = connectDatabase.getConnection();
 			CallableStatement cs = null;
 			connection.setAutoCommit(false);
-			String sql1 = "truncate staging_temp";
+			String sql1 = "truncate staging";
 			cs = connection.prepareCall(sql1);
 			cs.execute();
-			String sql2 = "truncate staging";
+			String sql2 = "truncate temp";
 			cs = connection.prepareCall(sql2);
-			cs.execute();
-			String sql3 = "truncate temp";
-			cs = connection.prepareCall(sql3);
 			cs.execute();
 			connection.commit();
 			cs.close();
