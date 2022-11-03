@@ -51,24 +51,18 @@ public class StagingService {
 				
 					
 					// map issue_date to date_dim
-					String sqlUpdate1 = "update staging_temp join date_dim on staging_temp.issue_date=date_dim.full_date\r\n"
-							+ "set staging_temp.date_sk = date_dim.date_sk;";
+					String sqlUpdate1 = "update staging join date_dim on staging.issue_date=date_dim.full_date\r\n"
+							+ "set staging.date_sk = date_dim.date_sk;";
 					cs = connection.prepareCall(sqlUpdate1);
 					cs.execute();
 					
-					String sqlUpdate2 = "update staging_temp join province on staging_temp.province=province.name_provinces\r\n"
-							+ "set staging_temp.id_province = province.skey;";
-					cs = connection.prepareCall(sqlUpdate2);
-					cs.execute();
 //					 
-					String sqlUpdate3 = "update staging_temp join province on staging_temp.province=province.name_provinces\r\n"
-							+ "set staging_temp.code_region = province.code_region;";
+					String sqlUpdate3 = "update staging join province on staging_temp.province=province.name_provinces\r\n"
+							+ "set staging_temp.nkey = province.code_region;";
 					cs = connection.prepareCall(sqlUpdate3);
 					cs.execute();
 					
-					String sqlInsert = "insert into staging (nkey,prize0,prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8,date_sk, id_province,expired_date)\r\n"
-							+ "select code_region,prize0,prize1,prize2,prize3,prize4,prize5,prize6,prize7,prize8,date_sk, id_province,'9999-12-31' from staging_temp;";
-					cs = connection.prepareCall(sqlInsert);
+
 					cs.execute();
 					
 					connection.commit();
