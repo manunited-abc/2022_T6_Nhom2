@@ -16,12 +16,12 @@ import model.Config;
 import model.Lottery;
 import model.Province;
 
-public class Extract4_sameExtract1 {
+public class Extract5_sameExtract1 {
 	Document document;
 	//ConnectDatabase connectDatabase;
 	Config config;
 
-	public Extract4_sameExtract1(Config config) {
+	public Extract5_sameExtract1(Config config) {
 		this.config = config;
 				//CÃ¢u query láº¥y cÃ¡c record trong table file_configuration
 
