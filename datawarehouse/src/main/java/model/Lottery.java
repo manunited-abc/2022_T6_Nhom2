@@ -82,6 +82,12 @@ public class Lottery {
 	public void setPrize8(String prize8) {
 		this.prize8 = prize8;
 	}
+	@Override
+	public String toString() {
+		return "Lottery [province=" + province + ", relaseDate=" + relaseDate + ", prize0=" + prize0 + ", prize1="
+				+ prize1 + ", prize2=" + prize2 + ", prize3=" + prize3 + ", prize4=" + prize4 + ", prize5=" + prize5
+				+ ", prize6=" + prize6 + ", prize7=" + prize7 + ", prize8=" + prize8 + "]";
+	}
 
 	
 }
