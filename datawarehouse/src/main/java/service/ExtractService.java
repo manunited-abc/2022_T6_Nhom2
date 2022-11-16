@@ -9,59 +9,65 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 import dao.ConnectDatabase;
 import extract.Extract1;
+import extract.Extract2;
+import extract.IExtract;
 import io.WriteFile;
 
 import model.Config;
 import model.Lottery;
 import utils.FormatDate;
 
-public class ExtractService {
+public class ExtractService extends Thread {
 	ConnectDatabase connectDatabase;
-	Extract1 extractService;
+	IExtract extractService;
 	Config config;
+	int index;
 
-	public ExtractService(ConnectDatabase connectDatabase) throws IOException {
+	public ExtractService(ConnectDatabase connectDatabase, int index) throws IOException {
 		this.connectDatabase = connectDatabase;
-		config  = connectDatabase.getConfig("{call getConfig}");
-		extractService = new Extract1(config);
-		
+		config = connectDatabase.getConfig("{call getConfig(?)}", index);
+		switch (index) {
+		case 2:
+			extractService = new Extract1(config);
+			break;
+		case 3:
+			extractService = new Extract2(config);
+			break;
+		default:
+			break;
+		}
 	}
 
-	public void process() throws IOException {
+	public void run() {
 		LocalDateTime date = LocalDateTime.now();
 		LocalDate localDate = LocalDate.now();
 		String dateFormat = FormatDate.convertDateToString(date);
-		String fileName = dateFormat+"."+config.getFileName();
-		String dirSource =config.getFtp()+fileName;
+		String fileName = dateFormat + "." + config.getFileName();
+		String dirSource = config.getFtp() + fileName;
 		int idConfig = config.getId();
 		String header = config.getHeader();
-		List<Lottery> lotteries = extractService.extract();
-		if (lotteries != null) {
-			try {
-				List<String> lineDatas = converLotteryToString(lotteries);
-				WriteFile.writeCSV(dirSource,lineDatas,header);
-//				File sourceFile = new File(dirSource);
-//				File desFile = new File(header);
-//				Files.copy(null, null);
-				connectDatabase.insertFileLog(idConfig,localDate ,dirSource,"ER");
-			} catch (IOException e) {
-				WriteFile.writeError(e);
-				e.fillInStackTrace();
-
-			}
+		try {
+			List<Lottery> lotteries = extractService.extract();
+			List<String> lineDatas = converLotteryToString(lotteries);
+			WriteFile.writeCSV(dirSource, lineDatas, header);
+			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ER");
+		} catch (IOException | NullPointerException e) {
+			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ERROR");
+			WriteFile.writeError(e);
+			e.fillInStackTrace();
 		}
-		System.out.println("Success");
+
 	}
-	public  List<String> converLotteryToString(List<Lottery> lotteries){
+
+	public List<String> converLotteryToString(List<Lottery> lotteries) {
 		List<String> result = new ArrayList<>();
-		for(Lottery lottery : lotteries) {
-			String line = lottery.getProvince()+","+lottery.getRelaseDate()+","+lottery.getPrize0()+","+lottery.getPrize1()
-			+","+lottery.getPrize2()+","+lottery.getPrize3()+","+lottery.getPrize4()+","+lottery.getPrize5()+","+lottery.getPrize6()
-			+","+lottery.getPrize7()+","+lottery.getPrize8();
+		for (Lottery lottery : lotteries) {
+			String line = lottery.getProvince() + "," + lottery.getRelaseDate() + "," + lottery.getPrize0() + ","
+					+ lottery.getPrize1() + "," + lottery.getPrize2() + "," + lottery.getPrize3() + ","
+					+ lottery.getPrize4() + "," + lottery.getPrize5() + "," + lottery.getPrize6() + ","
+					+ lottery.getPrize7() + "," + lottery.getPrize8();
 			result.add(line);
 		}
 		return result;

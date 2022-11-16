@@ -14,7 +14,7 @@ import dao.ConnectDatabase;
 import model.Config;
 import model.Lottery;
 
-public class Extract2 {
+public class Extract2 implements IExtract {
 	Config config;
 	Document document;
 	// ConnectDatabase connectDatabase;
@@ -34,6 +34,7 @@ public class Extract2 {
 		List<Lottery> list2 = extractSouth();
 		lotteries.addAll(list1);
 		lotteries.addAll(list2);
+		System.out.println("Extract 2 OK");
 		return lotteries;
 
 	}
@@ -46,7 +47,7 @@ public class Extract2 {
 		List<Lottery> list = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Lottery lottery = new Lottery();
-			lottery.setRelaseDate(dateStr.replaceAll("/", "-"));
+			lottery.setRelaseDate(formatDate(dateStr));
 			lottery.setProvince(tables.get(0).getElementsByClass("tinh").get(i).text());
 			lottery.setPrize8(tables.get(0).getElementsByClass("giai8").get(i + 1).text().replaceAll(" ", "-"));
 			lottery.setPrize7(tables.get(0).getElementsByClass("giai7").get(i + 1).text().replaceAll(" ", "-"));
@@ -72,7 +73,7 @@ public class Extract2 {
 		List<Lottery> list = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Lottery lottery = new Lottery();
-			lottery.setRelaseDate(dateStr.replaceAll("/", "-"));
+			lottery.setRelaseDate(formatDate(dateStr));
 			lottery.setProvince(tables.get(2).getElementsByClass("tinh").get(i).text());
 			lottery.setPrize8(tables.get(2).getElementsByClass("giai8").get(i + 1).text().replaceAll(" ", "-"));
 			lottery.setPrize7(tables.get(2).getElementsByClass("giai7").get(i + 1).text().replaceAll(" ", "-"));
@@ -97,8 +98,8 @@ public class Extract2 {
 		Lottery lottery = new Lottery();
 		lottery.setProvince(document.getElementsByClass("title").get(0).getElementsByTag("a").get(0).text()
 				.replaceAll("KẾT QUẢ XỔ SỐ ", ""));
-		lottery.setRelaseDate(tables.get(0).getElementsByClass("ngay").get(0).getElementsByTag("a").get(0).text()
-				.replaceAll("/", "-"));
+		lottery.setRelaseDate(formatDate( tables.get(0).getElementsByClass("ngay").get(0).getElementsByTag("a").get(0).text()
+				));
 		lottery.setPrize0(tables.get(0).getElementsByClass("giaidb").get(0).text().replaceAll(" ", "-"));
 		lottery.setPrize1(tables.get(0).getElementsByClass("giai1").get(0).text().replaceAll(" ", "-"));
 		lottery.setPrize2(tables.get(0).getElementsByClass("giai2").get(0).text().replaceAll(" ", "-"));
@@ -107,18 +108,21 @@ public class Extract2 {
 		lottery.setPrize5(tables.get(0).getElementsByClass("giai5").get(0).text().replaceAll(" ", "-"));
 		lottery.setPrize6(tables.get(0).getElementsByClass("giai6").get(0).text().replaceAll(" ", "-"));
 		lottery.setPrize7(tables.get(0).getElementsByClass("giai7").get(0).text().replaceAll(" ", "-"));
+		lottery.setPrize8("");
 		return lottery;
 
 	}
 
+	public String formatDate(String date) {
+		String[] split = date.split("/");
+		int day = Integer.parseInt(split[0]);
+		int month = Integer.parseInt(split[1]);
+		int year = Integer.parseInt(split[2]);
+		return year + "-" + month + "-" + day;
+	}
+
 	public static void main(String[] args) throws IOException {
-		ConnectDatabase connectDatabase = new ConnectDatabase();
-		Config config = connectDatabase.getConfig("{call getConfig}");
-		Extract2 extract2 = new Extract2(config);
-		for(Lottery lottery : extract2.extract()) {
-			System.out.println(lottery);
-		}
-	
+
 	}
 
 }

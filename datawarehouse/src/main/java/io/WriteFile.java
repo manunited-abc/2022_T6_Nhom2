@@ -30,7 +30,7 @@ public class WriteFile {
 				bw.newLine();	
 			}
 			bw.close();
-			System.out.println("[MESSAGE]: Write success");
+			System.out.println("[MESSAGE]: Write to file succesfully");
 		}
 		
 		

@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class ConnectDatabase {
 	ResourceBundle resourceBundle = ResourceBundle.getBundle("config\\config");
 	Connection connection;
@@ -49,14 +48,14 @@ public class ConnectDatabase {
 		}
 	}
 
-	public Config getConfig(String sql) {
+	public Config getConfig(String sql, int ids) {
 		Config config = new Config();
-		
 		try {
 			CallableStatement callableStatement = connection.prepareCall(sql);
+			callableStatement.setInt(1, ids);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
-			while(rs.next()) {
+			while (rs.next()) {
 				int id = rs.getInt("id");
 				String sourceData = rs.getString("source_data");
 				String ftp = rs.getString("ftp");
@@ -75,44 +74,46 @@ public class ConnectDatabase {
 		}
 		return null;
 	}
-	public Log getLog(String sql) {
-		Log log = new Log();
-		
+
+	public List<Log> getLog(String sql) {
+		List<Log> logs = new ArrayList<>();
 		try {
 			CallableStatement callableStatement = connection.prepareCall(sql);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
-			while(rs.next()) {
+			while (rs.next()) {
+				Log log = new Log();
 				int id = rs.getInt("id");
 				Date date = rs.getDate("date_crawl");
-				LocalDate dateCrawl =  new Date(date.getTime()).toLocalDate();
+				LocalDate dateCrawl = new Date(date.getTime()).toLocalDate();
 				String pathFile = rs.getString("path_file");
 				String status = rs.getString("status");
 				log.setDateCrawl(dateCrawl);
 				log.setPathFile(pathFile);
 				log.setId(id);
 				log.setStatus(status);
+				logs.add(log);
 			}
-			return log;
+			return logs;
 		} catch (SQLException e) {
 			WriteFile.writeError(e);
 			e.printStackTrace();
 		}
 		return null;
 	}
-	public void insertFileLog(int idConfig, LocalDate dateCrawl,String fileName,String status) {
-			try {
-				CallableStatement callableStatement = connection.prepareCall("{call insert_filelog(?,?,?,?)}");
-				callableStatement.setInt(1, idConfig);
-				callableStatement.setDate(2, Date.valueOf(dateCrawl));
-				callableStatement.setString(3, fileName);
-				callableStatement.setString(4, status);
-				callableStatement.execute();
-			}catch (SQLException e) {
-				WriteFile.writeError(e);
-				e.printStackTrace();
-			}
+
+	public void insertFileLog(int idConfig, LocalDate dateCrawl, String fileName, String status) {
+		try {
+			CallableStatement callableStatement = connection.prepareCall("{call insert_filelog(?,?,?,?)}");
+			callableStatement.setInt(1, idConfig);
+			callableStatement.setDate(2, Date.valueOf(dateCrawl));
+			callableStatement.setString(3, fileName);
+			callableStatement.setString(4, status);
+			callableStatement.execute();
+		} catch (SQLException e) {
+			WriteFile.writeError(e);
+			e.printStackTrace();
+		}
 	}
-	
 
 }
