@@ -21,9 +21,6 @@ public class DeleteStagingService {
 			String sql1 = "truncate staging";
 			cs = connection.prepareCall(sql1);
 			cs.execute();
-			String sql2 = "truncate temp";
-			cs = connection.prepareCall(sql2);
-			cs.execute();
 			connection.commit();
 			cs.close();
 			connection.close();

@@ -1,6 +1,10 @@
 package extract;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -122,7 +126,10 @@ public class Extract2 implements IExtract {
 	}
 
 	public static void main(String[] args) throws IOException {
-
+		File currentDirFile = new File(".");
+		String helper = currentDirFile.getAbsolutePath();
+		String currentDir = helper.substring(0, helper.length() - currentDirFile.getCanonicalPath().length());
+		System.out.println(helper);
 	}
 
 }

@@ -12,6 +12,11 @@ import model.Config;
 import model.Log;
 import utils.FormatDate;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
@@ -25,21 +30,36 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class ConnectDatabase {
-	ResourceBundle resourceBundle = ResourceBundle.getBundle("config\\config");
+	//ResourceBundle resourceBundle = ResourceBundle.getBundle("config\\config");
+	Properties properties = new Properties();
 	Connection connection;
+
+	public void loadConfig() {
+		File currentDirFile = new File(".");
+		String helper = currentDirFile.getAbsolutePath();
+		try (InputStream input = new FileInputStream("E:\\Program Files\\Data Warehouse\\Project\\Data Engineer\\datawarehouse\\src\\main\\java\\config\\config.properties")) {
+			// load a properties file
+			properties.load(input);
+
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
 
 	public ConnectDatabase() {
 		connection = getConnection();
 	}
 
 	public Connection getConnection() {
+		loadConfig();
 		try {
-			Class.forName(resourceBundle.getString("driverName"));
-			String url = resourceBundle.getString("url");
-			String user = resourceBundle.getString("user");
-			String password = resourceBundle.getString("password");
+			Class.forName(properties.getProperty("driverName"));
+			String url = properties.getProperty("url");
+			String user = properties.getProperty("user");
+			String password = properties.getProperty("password");
 			return DriverManager.getConnection(url, user, password);
 		} catch (Exception e) {
 			WriteFile.writeError(e);
@@ -47,6 +67,20 @@ public class ConnectDatabase {
 			return null;
 		}
 	}
+//	public Connection getConnection() {
+//		loadConfid();
+//		try {
+//			Class.forName(resourceBundle.getString("driverName"));
+//			String url = resourceBundle.getString("url");
+//			String user = resourceBundle.getString("user");
+//			String password = resourceBundle.getString("password");
+//			return DriverManager.getConnection(url, user, password);
+//		} catch (Exception e) {
+//			WriteFile.writeError(e);
+//			e.printStackTrace();
+//			return null;
+//		}
+//	}
 
 	public Config getConfig(String sql, int ids) {
 		Config config = new Config();

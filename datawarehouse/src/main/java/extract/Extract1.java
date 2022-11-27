@@ -21,9 +21,7 @@ public class Extract1 implements IExtract {
 	// ConnectDatabase connectDatabase;
 	Config config;
 
-	public void run() {
-		System.out.println("Fuck you");
-	}
+
 
 	public Extract1(Config config) {
 		this.config = config;

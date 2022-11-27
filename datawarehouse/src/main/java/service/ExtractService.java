@@ -12,6 +12,7 @@ import java.util.List;
 import dao.ConnectDatabase;
 import extract.Extract1;
 import extract.Extract2;
+import extract.Extract3;
 import extract.IExtract;
 import io.WriteFile;
 
@@ -34,6 +35,9 @@ public class ExtractService extends Thread {
 			break;
 		case 3:
 			extractService = new Extract2(config);
+			break;
+		case 4:
+			extractService = new Extract3(config);
 			break;
 		default:
 			break;
