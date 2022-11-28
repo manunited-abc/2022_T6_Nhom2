@@ -24,7 +24,7 @@ public class Extract3 implements IExtract {
 	}
 
 	@Override
-	public List<Lottery> extract() throws IOException {
+	public List<Lottery> extract() throws Exception {
 		List<Lottery> lotteries = new ArrayList<>();
 		Lottery lottery = extractNorth();
 		lotteries.add(lottery);
@@ -36,7 +36,7 @@ public class Extract3 implements IExtract {
 		return lotteries;
 	}
 
-	public List<Lottery> extractSouth() throws IOException {
+	public List<Lottery> extractSouth() throws Exception {
 		document = Jsoup.connect(config.getSourceData()).userAgent("Chrome").get();
 		Elements root = document.getElementsByClass("section");
 		String dateStr = root.get(3).getElementsByClass("site-link").get(0).getElementsByTag("a").get(2).text()
@@ -72,18 +72,18 @@ public class Extract3 implements IExtract {
 		return list;
 	}
 
-	public List<Lottery> extractCenter() throws IOException {
+	public List<Lottery> extractCenter() throws Exception {
 		document = Jsoup.connect(config.getSourceData()).userAgent("Chrome").get();
 		Elements root = document.getElementsByClass("section");
 		String dateStr = root.get(4).getElementsByClass("site-link").get(0).getElementsByTag("a").get(2).text()
 				.split(" ")[1];
-		int size = root.get(3).getElementsByClass("prize-col3").size();
+		int size = root.get(4).getElementsByClass("prize-col2").size();
 		Element tables = root.get(4).getElementsByClass("table-result").get(0).getElementsByTag("tbody").get(0);
 		List<Lottery> list = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			Lottery lottery = new Lottery();
 			lottery.setRelaseDate(formatDate(dateStr));
-			lottery.setProvince(root.get(4).getElementsByClass("prize-col3").get(i).text());
+			lottery.setProvince(root.get(4).getElementsByClass("prize-col2").get(i).text());
 			lottery.setPrize8(
 					tables.getElementsByTag("tr").get(0).getElementsByTag("td").get(i).text().replaceAll(" ", "-"));
 			lottery.setPrize7(
@@ -108,7 +108,7 @@ public class Extract3 implements IExtract {
 		return list;
 	}
 
-	public Lottery extractNorth() throws IOException {
+	public Lottery extractNorth() throws Exception {
 		document = Jsoup.connect(config.getSourceData()).userAgent("Chrome").get();
 		Elements root = document.getElementsByClass("section");
 		String dateStr = root.get(1).getElementsByClass("site-link").get(0).getElementsByTag("a").get(2).text()

@@ -6,7 +6,7 @@ import dao.ConnectDatabase;
 import service.ExtractService;
 
 public class RunExtract {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		ConnectDatabase connectDatabase = new ConnectDatabase();
 //		ExtractService extractService1 = new ExtractService(connectDatabase,2);
 //		extractService1.start();

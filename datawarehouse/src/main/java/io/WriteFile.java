@@ -26,7 +26,7 @@ public class WriteFile {
 //	static ResourceBundle resourceBundle = ResourceBundle.getBundle("config\\config");
 //	static String path = resourceBundle.getString("pathError");
 	static Properties properties = new Properties();
-	public void loadConfig() {
+	public static void loadConfig() {
 		File currentDirFile = new File(".");
 		String helper = currentDirFile.getAbsolutePath();
 		try (InputStream input = new FileInputStream("E:\\Program Files\\Data Warehouse\\Project\\Data Engineer\\datawarehouse\\src\\main\\java\\config\\config.properties")) {
@@ -54,17 +54,22 @@ public class WriteFile {
 	}
 	 public static void writeError(Exception e) {
 	        try {
+	        	loadConfig();
 	        	 e.printStackTrace();
+	        	 System.out.println(properties.getProperty("pathError"));
 	            FileWriter fileWriter = new FileWriter(properties.getProperty("pathError"), true);
 	            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
 	            PrintWriter printWriter = new PrintWriter(bufferedWriter, true);	
 	            LocalDateTime localDateTime = LocalDateTime.now();
 	            printWriter.println("["+FormatDate.convertDateToString(localDateTime)+"]");
-	           
 	            e.printStackTrace(printWriter);
+	           fileWriter.close();
+	           bufferedWriter.close();
+	           printWriter.close();
+	            
 	        }
 	        catch (Exception ie) {
-	            throw new RuntimeException("Cannot write the Exception to file", ie);
+	           ie.printStackTrace();
 	        }
 	   }
 	

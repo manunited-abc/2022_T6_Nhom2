@@ -26,7 +26,7 @@ public class ExtractService extends Thread {
 	Config config;
 	int index;
 
-	public ExtractService(ConnectDatabase connectDatabase, int index) throws IOException {
+	public ExtractService(ConnectDatabase connectDatabase, int index) throws Exception {
 		this.connectDatabase = connectDatabase;
 		config = connectDatabase.getConfig("{call getConfig(?)}", index);
 		switch (index) {
@@ -57,7 +57,7 @@ public class ExtractService extends Thread {
 			List<String> lineDatas = converLotteryToString(lotteries);
 			WriteFile.writeCSV(dirSource, lineDatas, header);
 			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ER");
-		} catch (IOException | NullPointerException e) {
+		} catch (Exception e) {
 			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ERROR");
 			WriteFile.writeError(e);
 			e.fillInStackTrace();
