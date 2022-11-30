@@ -25,7 +25,7 @@ public class StagingService {
 
 	public void process() {
 		Connection connection = null;
-		if (!logs.isEmpty()) {
+
 			try {
 				connection = connectDatabase.getConnection();
 				CallableStatement cs = null;
@@ -40,14 +40,18 @@ public class StagingService {
 					cs = connection.prepareCall(loadData);
 					cs.execute();
 
-					cs = connection.prepareCall("{calll update_filelog(?,?)}");
-					cs.setString(1, "TR");
-					cs.setInt(2, log.getId());
-					cs.execute();
+				
+					
 
 				}
 				cs = connection.prepareCall("{call tranform_staging}");
 				cs.execute();
+				
+				cs = connection.prepareCall("{call update_filelog(?,?)}");
+				cs.setString(1, "TR");
+				cs.setString(2, "ER");
+				cs.execute();
+				
 				connection.commit();
 				cs.close();
 				connection.close();
@@ -63,5 +67,5 @@ public class StagingService {
 				}
 			}
 		}
-	}
+	
 }

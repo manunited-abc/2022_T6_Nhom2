@@ -22,6 +22,12 @@ public class DatawarehouseService {
 			cs.execute();
 			cs = connection.prepareCall("{call insert_staging_to_lottery_fact}");
 			cs.execute();
+			
+			cs = connection.prepareCall("{call update_filelog(?,?)}");
+			cs.setString(1, "SU");
+			cs.setString(2, "TR");
+			cs.execute();
+			
 			connection.commit();
 			cs.close();
 			connection.close();

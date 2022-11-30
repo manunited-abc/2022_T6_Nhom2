@@ -58,7 +58,7 @@ public class ExtractService extends Thread {
 			WriteFile.writeCSV(dirSource, lineDatas, header);
 			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ER");
 		} catch (Exception e) {
-			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ERROR");
+			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "EF");
 			WriteFile.writeError(e);
 			e.fillInStackTrace();
 		}
