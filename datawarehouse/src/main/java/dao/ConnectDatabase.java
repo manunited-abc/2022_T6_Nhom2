@@ -32,14 +32,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+//1 . Kết nối database 
 public class ConnectDatabase {
-	//ResourceBundle resourceBundle = ResourceBundle.getBundle("config\\config");
 	Properties properties = new Properties();
 	Connection connection;
 
 	public void loadConfig() {
-		File currentDirFile = new File(".");
-		String helper = currentDirFile.getAbsolutePath();
 		try (InputStream input = new FileInputStream("E:\\Program Files\\Data Warehouse\\Project\\Data Engineer\\datawarehouse\\src\\main\\java\\config\\config.properties")) {
 			// load a properties file
 			properties.load(input);
@@ -62,26 +60,13 @@ public class ConnectDatabase {
 			String password = properties.getProperty("password");
 			return DriverManager.getConnection(url, user, password);
 		} catch (Exception e) {
+			// Ghi lỗi vào file error.txt
 			WriteFile.writeError(e);
 			e.printStackTrace();
 			return null;
 		}
 	}
-//	public Connection getConnection() {
-//		loadConfid();
-//		try {
-//			Class.forName(resourceBundle.getString("driverName"));
-//			String url = resourceBundle.getString("url");
-//			String user = resourceBundle.getString("user");
-//			String password = resourceBundle.getString("password");
-//			return DriverManager.getConnection(url, user, password);
-//		} catch (Exception e) {
-//			WriteFile.writeError(e);
-//			e.printStackTrace();
-//			return null;
-//		}
-//	}
-
+	//2 .Lấy thông tin trong bảng file_configuration
 	public Config getConfig(String sql, int ids) {
 		Config config = new Config();
 		try {

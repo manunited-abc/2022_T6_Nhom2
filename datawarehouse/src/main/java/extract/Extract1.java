@@ -18,14 +18,13 @@ import model.Province;
 
 public class Extract1 implements IExtract {
 	Document document;
-	// ConnectDatabase connectDatabase;
+
 	Config config;
 
 
 
 	public Extract1(Config config) {
 		this.config = config;
-		// Câu query lấy các record trong table file_configuration
 	}
 
 	public List<Lottery> extract() throws IOException {

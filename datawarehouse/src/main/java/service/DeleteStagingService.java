@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 import dao.ConnectDatabase;
 import io.WriteFile;
-
+//6. Xoá tất cả các hàng trong bảng staging
 public class DeleteStagingService {
 	ConnectDatabase connectDatabase;
 	public DeleteStagingService(ConnectDatabase connectDatabase) {

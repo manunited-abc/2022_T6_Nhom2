@@ -16,6 +16,11 @@ import nlu.lotteries_api.payload.LotteryReponse;
 public class LotteryDAO {
 	ConnectDatabase connectDatabase;
 	Connection connection;
+	String sqlSelect = "select lottery_fact.skey, lottery_fact.nkey, lottery_fact.prize0,lottery_fact.prize1, lottery_fact.prize2,\r\n"
+			+ "		lottery_fact.prize3, lottery_fact.prize4,lottery_fact.prize5,lottery_fact.prize6,lottery_fact.prize7\r\n"
+			+ "        ,lottery_fact.prize8,province_dim.name_provinces, province_dim.region ,date_dim.full_date\r\n"
+			+ " from lottery_fact inner join date_dim on lottery_fact.date_sk = date_dim.date_sk\r\n"
+			+ "					inner join province_dim on lottery_fact.province_sk = province_dim.skey";
 
 	public LotteryDAO() {
 		connectDatabase = new ConnectDatabase();
@@ -25,14 +30,9 @@ public class LotteryDAO {
 	public List<LotteryReponse> getLotteriesByRegionLatest(String region) {
 
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(
-					"select lottery_fact.skey, lottery_fact.nkey, lottery_fact.prize0,lottery_fact.prize1, lottery_fact.prize2,\r\n"
-							+ "		lottery_fact.prize3, lottery_fact.prize4,lottery_fact.prize5,lottery_fact.prize6,lottery_fact.prize7\r\n"
-							+ "        ,lottery_fact.prize8,province_dim.name_provinces, province_dim.region ,date_dim.full_date\r\n"
-							+ " from lottery_fact inner join date_dim on lottery_fact.date_sk = date_dim.date_sk\r\n"
-							+ "					inner join province_dim on lottery_fact.province_sk = province_dim.skey "
-							+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
-							+ "lottery_fact.expired_date = '9999-12-31' and province_dim.region = ?");
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlSelect
+					+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
+					+ "lottery_fact.expired_date = '9999-12-31' and province_dim.region = ?");
 			preparedStatement.setString(1, region);
 			ResultSet rs = preparedStatement.executeQuery();
 			List<LotteryReponse> lotteryReponses = new ArrayList<>();
@@ -48,17 +48,13 @@ public class LotteryDAO {
 		}
 		return null;
 	}
+
 	public List<LotteryReponse> getLotteriesByRegionByIssueDate(String region, String date) {
-	
+
 		try {
-			PreparedStatement preparedStatement = connection.prepareStatement(
-					"select lottery_fact.skey, lottery_fact.nkey, lottery_fact.prize0,lottery_fact.prize1, lottery_fact.prize2,\r\n"
-							+ "		lottery_fact.prize3, lottery_fact.prize4,lottery_fact.prize5,lottery_fact.prize6,lottery_fact.prize7\r\n"
-							+ "        ,lottery_fact.prize8,province_dim.name_provinces, province_dim.region ,date_dim.full_date\r\n"
-							+ " from lottery_fact inner join date_dim on lottery_fact.date_sk = date_dim.date_sk\r\n"
-							+ "					inner join province_dim on lottery_fact.province_sk = province_dim.skey "
-							+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
-							+ "lottery_fact.expired_date = '9999-12-31' and province_dim.region = ? and date_dim.full_date = ? ");
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlSelect
+					+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
+					+ "lottery_fact.expired_date = '9999-12-31' and province_dim.region = ? and date_dim.full_date = ? ");
 			preparedStatement.setString(1, region);
 			preparedStatement.setString(2, date);
 			ResultSet rs = preparedStatement.executeQuery();
@@ -75,6 +71,52 @@ public class LotteryDAO {
 		}
 		return null;
 	}
+
+	public LotteryReponse getResultLotteryByProvinceAndIssueDate(String province, String date) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlSelect
+					+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
+					+ "province_dim.name_provinces = ? and date_dim.full_date = ? ");
+			preparedStatement.setString(1, province);
+			preparedStatement.setString(2, date);
+			ResultSet rs = preparedStatement.executeQuery();
+			List<LotteryReponse> lotteryReponses = new ArrayList<>();
+			while (rs.next()) {
+				LotteryReponse lotteryReponse = getResultSet(rs);
+				lotteryReponses.add(lotteryReponse);
+
+			}
+			return lotteryReponses.get(0);
+		} catch (SQLException e) {
+			// WriteFile.writeError(e);
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
+	public LotteryReponse getResultLotteryByProvinceLatest(String province) {
+		try {
+			PreparedStatement preparedStatement = connection.prepareStatement(sqlSelect
+					+ "                    where   ( lottery_fact.active = 1 or  lottery_fact.active =2 ) and "
+					+ "province_dim.name_provinces = ? and lottery_fact.expired_date = '9999-12-31' ");
+			preparedStatement.setString(1, province);
+			ResultSet rs = preparedStatement.executeQuery();
+			List<LotteryReponse> lotteryReponses = new ArrayList<>();
+			while (rs.next()) {
+				LotteryReponse lotteryReponse = getResultSet(rs);
+				lotteryReponses.add(lotteryReponse);
+
+			}
+			return lotteryReponses.get(0);
+		} catch (SQLException e) {
+			// WriteFile.writeError(e);
+			e.printStackTrace();
+		}
+		return null;
+
+	}
+
 	public LotteryReponse getResultSet(ResultSet rs) throws SQLException {
 		LotteryReponse lotteryReponse = new LotteryReponse();
 		lotteryReponse.setSurrigateKey(rs.getInt("skey"));
@@ -96,8 +138,9 @@ public class LotteryDAO {
 
 	public static void main(String[] args) {
 		LotteryDAO lotteryDAO = new LotteryDAO();
-		for(LotteryReponse lotteryReponse : lotteryDAO.getLotteriesByRegionByIssueDate("Miền Bắc", "2022-11-18")) {
-			System.out.println(lotteryReponse);
-		}
+//		for (LotteryReponse lotteryReponse : lotteryDAO.getLotteriesByRegionByIssueDate("Miền Bắc", "2022-11-18")) {
+//			System.out.println(lotteryReponse);
+//		}
+		System.out.println(lotteryDAO.getResultLotteryByProvinceLatest(null));
 	}
 }

@@ -17,21 +17,21 @@ public class StagingService {
 	List<Log> logs;
 
 	public StagingService(ConnectDatabase connectDatabase) {
+		//1. Kết nối database
 		this.connectDatabase = connectDatabase;
-		// config = connectDatabase.getConfig("{call getConfig}");
+		//2. Lấy các dòng trong bảng file_log 
 		logs = connectDatabase.getLog("{call get_filelog}");
 
 	}
 
 	public void process() {
 		Connection connection = null;
-
 			try {
 				connection = connectDatabase.getConnection();
 				CallableStatement cs = null;
 				connection.setAutoCommit(false);
 				for (Log log : logs) {
-					// load file to staging
+					//3. Load dữ liệu trong file.csv có đường dẫn = Log.pahtFile vào bảng staging 
 					String loadData = "LOAD DATA INFILE '" + log.getPathFile() + "' \r\n" + "INTO TABLE staging\r\n"
 							+ "FIELDS TERMINATED BY ',' \r\n" + "ENCLOSED BY '\"'\r\n"
 							+ "LINES TERMINATED BY '\\r\\n'\r\n" + "IGNORE 1 ROWS\r\n"
@@ -40,13 +40,11 @@ public class StagingService {
 					cs = connection.prepareCall(loadData);
 					cs.execute();
 
-				
-					
-
 				}
+				//4. Biến đổi dữ liệu trong staging
 				cs = connection.prepareCall("{call tranform_staging}");
 				cs.execute();
-				
+				//5. Cập nhật các hàng có status là ER thành TR
 				cs = connection.prepareCall("{call update_filelog(?,?)}");
 				cs.setString(1, "TR");
 				cs.setString(2, "ER");
@@ -58,6 +56,7 @@ public class StagingService {
 				System.out.println("Success");
 			} catch (SQLException e) {
 				e.printStackTrace();
+				//Ghi lỗi vào file log
 				WriteFile.writeError(e);
 				try {
 					if (connection != null)

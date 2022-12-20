@@ -21,9 +21,9 @@ public class LotteryService {
 		List<LotteryReponse> reponses = new ArrayList<>();
 		LocalDateTime currneDateTime = LocalDateTime.now();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		LocalDateTime currentDateTime2 = LocalDateTime.of(currneDateTime.getYear(), currneDateTime.getMonth(),
+		LocalDateTime currentDateTimeIssueDate = LocalDateTime.of(currneDateTime.getYear(), currneDateTime.getMonth(),
 				currneDateTime.getDayOfMonth(), 19, 00, 00);
-		if (currneDateTime.isAfter(currentDateTime2)) {
+		if (currneDateTime.isAfter(currentDateTimeIssueDate)) {
 
 			String formattedString = currneDateTime.format(formatter);
 			reponses = lotteryDAO.getLotteriesByRegionByIssueDate(region, formattedString);
@@ -35,4 +35,5 @@ public class LotteryService {
 		return reponses;
 
 	}
+
 }

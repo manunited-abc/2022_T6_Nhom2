@@ -27,10 +27,16 @@ public class ExtractService extends Thread {
 	int index;
 
 	public ExtractService(ConnectDatabase connectDatabase, int index) throws Exception {
+		//1. Kết nối database
 		this.connectDatabase = connectDatabase;
+		
+		//2 .Lấy 1 hàng trong bảng file_configuration
+		//3. Lưu vào object Config
 		config = connectDatabase.getConfig("{call getConfig(?)}", index);
+		
 		switch (index) {
 		case 2:
+			
 			extractService = new Extract1(config);
 			break;
 		case 3:
@@ -53,12 +59,20 @@ public class ExtractService extends Thread {
 		int idConfig = config.getId();
 		String header = config.getHeader();
 		try {
+			//4. Extract dữ liệu lưu vào List
 			List<Lottery> lotteries = extractService.extract();
+			
 			List<String> lineDatas = converLotteryToString(lotteries);
+			//5. Ghi list vào file csv
 			WriteFile.writeCSV(dirSource, lineDatas, header);
+			
+			//6. Insert 1 hàng vào bảng file_log
 			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "ER");
 		} catch (Exception e) {
+			//7. Insert 1 hàng vào bảng file_log
 			connectDatabase.insertFileLog(idConfig, localDate, dirSource, "EF");
+			
+			//8. Ghi lỗi vào file error.txt
 			WriteFile.writeError(e);
 			e.fillInStackTrace();
 		}
